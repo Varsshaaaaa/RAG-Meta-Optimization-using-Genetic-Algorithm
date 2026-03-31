@@ -1,110 +1,235 @@
-# RAG-Meta-Optimization-using-Genetic-Algorithm
-🚀 Overview
+# Comparative Meta-Optimization of RAG Pipelines
 
-This project implements a Retrieval-Augmented Generation (RAG) pipeline and optimizes its hyperparameters using a Genetic Algorithm (GA) under a constrained LLM evaluation budget.
+A Genetic Algorithm-based optimization project for tuning Retrieval-Augmented Generation (RAG) hyperparameters on a legal/compliance Markdown dataset using a local Ollama LLM.
 
-The goal is to maximize answer quality (measured via cosine similarity) on a legal/compliance dataset by tuning key RAG parameters.
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![Ollama](https://img.shields.io/badge/LLM-Ollama%20Phi--3-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-🧠 Problem Statement
+---
 
-RAG performance heavily depends on hyperparameters such as:
+## Overview
 
-Chunk size
-Chunk overlap
-Temperature
-Top-k retrieval
+This project evaluates how meta-heuristic optimization can improve the quality of a RAG pipeline by searching for the best combination of:
 
-This project uses a Genetic Algorithm to automatically discover the best configuration within a limited LLM call budget (50 calls).
+- `chunk_size`
+- `chunk_overlap`
+- `temperature`
+- `top_k`
 
-🏗️ Project Architecture
-main.py
-   │
-   ├── rag_pipeline.py     → Document chunking + FAISS + LLM query
-   ├── fitness.py          → Fitness evaluation (cosine similarity)
-   ├── ga.py               → Genetic Algorithm implementation
-   ├── visualize.py        → Convergence plots + comparison table
-   └── gold_qa.py          → Ground truth Q&A pairs
-⚙️ Tech Stack
-LLM: Ollama (phi3)
-Embeddings: SentenceTransformers (all-MiniLM-L6-v2)
-Vector DB: FAISS
-Framework: LangChain
-Optimization: Genetic Algorithm (custom implementation)
-Language: Python
-🔬 RAG Pipeline Workflow
-Load Markdown document (legal/compliance dataset)
-Split text using RecursiveCharacterTextSplitter
-Generate embeddings using SentenceTransformers
-Store embeddings in FAISS vector database
-Retrieve top-k relevant chunks
-Inject context into prompt
-Generate answer using LLM (phi3)
-🧪 Fitness Function
+The optimizer uses a Genetic Algorithm and a semantic fitness function based on cosine similarity between generated answers and gold-standard answers.
 
-Fitness is computed as:
+---
 
-Mean cosine similarity between:
-Generated answers
-Gold standard answers
-Constraints:
-❌ Invalid if chunk_overlap >= chunk_size
-🔁 Caching used to avoid repeated LLM calls
-⛔ Budget-aware evaluation (max 50 calls)
-🧬 Genetic Algorithm Details
-Component	Description
-Representation	[chunk_size, chunk_overlap, temperature, top_k]
-Population	8 individuals
-Selection	Tournament selection (k=3)
-Crossover	Single-point (p=0.8)
-Mutation	Gaussian (float), uniform (int)
-Elitism	Best individual preserved
-Termination	Budget exhausted (~2 generations)
-📊 Results
-✅ Best Configuration Found
-chunk_size   = 656
-chunk_overlap= 175
-temperature  = 0.09
-top_k        = 10
-fitness      = 0.8497
-📈 Key Observations
-🎯 Fitness > 0.8 achieved in Generation 1
-⚡ Early convergence observed
-💸 Budget exhausted quickly (50 LLM calls)
-📚 Legal documents require:
-Larger chunk sizes
-Higher overlap (~27%)
-Higher top_k
-📉 Insights
-🔍 Domain Impact
-Legal text requires high overlap to preserve clause boundaries
-Multiple chunks are needed → higher top_k
-⚠️ Limitations
-Very limited search due to LLM cost
-Premature convergence occurred
-Results depend on random initialization
-🔄 Future Improvements
-Increase LLM budget (150–200 calls)
-Use Bayesian Optimization or Differential Evolution
-Add adaptive mutation rates
-Parallelize fitness evaluation
-Use better embedding models
-▶️ How to Run
-# Install dependencies
+## Objective
+
+The goal is to maximize answer quality from a local LLM while staying within a strict budget of 50 LLM calls.
+
+The final best configuration achieved:
+
+- `chunk_size = 656`
+- `chunk_overlap = 175`
+- `temperature = 0.09`
+- `top_k = 10`
+- `best fitness = 0.8497`
+
+---
+
+## Dataset Track
+
+**Track:** Legal / Compliance (Markdown)
+
+Why this track?
+
+- Legal documents require high overlap to avoid splitting clauses.
+- Larger chunks help preserve semantic context.
+- Low temperature improves precision in generated answers.
+
+---
+
+## Features
+
+- RAG pipeline with document chunking and retrieval.
+- Local LLM integration using Ollama.
+- Genetic Algorithm for hyperparameter search.
+- Fitness evaluation using SentenceTransformers cosine similarity.
+- Caching to avoid repeated evaluations.
+- Convergence visualization and comparison table.
+- Budget-aware optimization under limited LLM calls.
+
+---
+
+## Project Structure
+
+```bash
+.
+├── main.py
+├── rag_pipeline.py
+├── fitness.py
+├── ga.py
+├── visualize.py
+├── gold_qa.py
+├── data/
+│   └── privacy_policy.md
+├── output/
+│   ├── ga_convergence.png
+│   └── RAG_Report_Final.docx
+└── README.md
+```
+
+---
+
+## Requirements
+
+- Python 3.10+
+- Ollama installed locally
+- Model pulled in Ollama:
+  - `phi3` or `tinyllama`
+- SentenceTransformers
+- FAISS
+- LangChain
+- `python-docx`
+
+---
+
+## Installation
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/your-username/rag-meta-optimization.git
+cd rag-meta-optimization
+```
+
+### 2. Create a virtual environment
+
+```bash
+python -m venv .venv
+```
+
+### 3. Activate the environment
+
+**Windows**
+```bash
+.venv\Scripts\activate
+```
+
+**Linux / macOS**
+```bash
+source .venv/bin/activate
+```
+
+### 4. Install dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-# Run the pipeline
+### 5. Start Ollama and pull the model
+
+```bash
+ollama pull phi3
+ollama serve
+```
+
+---
+
+## Usage
+
+Run the main script:
+
+```bash
 python main.py
-📁 Dataset
-Domain: Legal / Compliance
-Format: Markdown (privacy_policy.md)
-Evaluation: 5 Gold Q&A pairs
-📌 Key Takeaway
+```
 
-Optimizing RAG pipelines is highly budget-sensitive — even strong algorithms like GA can converge prematurely when LLM evaluations are expensive.
+This will:
 
-📚 References
-Lewis et al. (2020) — RAG (NeurIPS)
-Holland (1975) — Genetic Algorithms
-Reimers & Gurevych (2019) — Sentence-BERT
-LangChain Docs
-Ollama Docs
+1. Load the legal/compliance document.
+2. Build the RAG pipeline.
+3. Evaluate candidate hyperparameters.
+4. Run the Genetic Algorithm.
+5. Print the best configuration and fitness.
+6. Generate convergence outputs and the report artifacts.
+
+---
+
+## Validation Questions
+
+The project uses 5 gold-standard QA pairs derived from the legal document, such as:
+
+- What is the notice period for data deletion?
+- Can user data be shared with third parties?
+- What cookies are used on the platform?
+- How can users opt out of marketing communications?
+- What is the minimum age to use the service?
+
+---
+
+## Fitness Function
+
+The fitness score is calculated as follows:
+
+- Run the RAG pipeline with a candidate parameter set.
+- Query the local LLM with the validation questions.
+- Compare generated answers to gold answers using cosine similarity.
+- Average the scores to produce a value between 0 and 1.
+- Apply a penalty if `chunk_overlap >= chunk_size`.
+
+---
+
+## Results
+
+### Best configuration found
+
+| Iteration | Best Fitness | chunk_size | chunk_overlap | temperature | top_k |
+|---|---:|---:|---:|---:|---:|
+| 1 | 0.8497 | 656 | 175 | 0.09 | 10 |
+| 2 | 0.8497 | 656 | 175 | 0.09 | 10 |
+
+### Final outcome
+
+- Best fitness: `0.8497`
+- LLM calls used: `50 / 50`
+- Threshold `0.8` was reached immediately in the first recorded generation.
+- The search plateaued after the first strong solution.
+
+---
+
+## Visualization
+
+The convergence plot shows:
+
+- Fitness reached 0.8497 quickly.
+- The best score remained stable afterward.
+- The parameter set favored larger chunks, high overlap, low temperature, and higher top-k.
+
+
+
+![GA Convergence]("C:\Users\varsh\OneDrive\Pictures\Screenshots\Screenshot 2026-03-31 111334.png")
+
+
+---
+
+## Inference
+
+The Genetic Algorithm performed well under a tight budget because it found a strong configuration quickly. However, the plateau suggests that the search space may have been constrained by the dataset or that the optimizer converged early.
+
+The legal/compliance domain strongly influenced the best settings:
+
+- Higher `chunk_overlap` preserved clause boundaries.
+- Moderate `chunk_size` preserved enough context.
+- Low `temperature` improved precision.
+- Higher `top_k` helped retrieve multiple relevant clauses.
+
+---
+
+## Conclusion
+
+This project demonstrates that meta-heuristic optimization can improve RAG performance by tuning retrieval and generation parameters. For this legal dataset, the best configuration was achieved quickly and remained stable, showing that the selected GA setup was effective within the available evaluation budget.
+
+
+---
+
+## License
+
+This project is provided for academic use. Add your preferred license here if needed.
