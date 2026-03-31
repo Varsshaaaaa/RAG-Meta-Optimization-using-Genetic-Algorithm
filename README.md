@@ -205,7 +205,7 @@ The convergence plot shows:
 
 
 
-![GA Convergence]("C:\Users\varsh\OneDrive\Pictures\Screenshots\Screenshot 2026-03-31 111334.png")
+![GA Convergence](Screenshot-2026-03-31 111334.png")
 
 
 ---
