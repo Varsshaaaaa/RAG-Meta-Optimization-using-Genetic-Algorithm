@@ -205,8 +205,7 @@ The convergence plot shows:
 
 
 
-![GA Convergence](Screenshot 2026-03-31 111334.png")
-
+![GA Convergence](Screenshot 2026-03-31 111334.png)
 
 ---
 
